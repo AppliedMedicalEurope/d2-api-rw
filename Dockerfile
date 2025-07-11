@@ -1,19 +1,22 @@
+FROM node:18-alpine AS builder
+
+RUN apk add --no-cache git go make
+
+RUN git clone https://github.com/terrastruct/d2.git /d2-src \
+ && cd /d2-src \
+ && git checkout v0.7.0 \
+ && make build
+
 FROM node:18-alpine
 
-RUN apk add --no-cache curl tar libc6-compat
-
-ENV D2_VERSION=v0.6.9
-ENV D2_DIR=d2-${D2_VERSION}
-
-RUN curl -L -o d2.tar.gz https://github.com/terrastruct/d2/releases/download/${D2_VERSION}/d2-${D2_VERSION}-linux-amd64.tar.gz && \
-    tar -xzf d2.tar.gz && \
-    mv ${D2_DIR}/d2 /usr/local/bin/d2 && \
-    chmod +x /usr/local/bin/d2 && \
-    rm -rf d2.tar.gz ${D2_DIR}
+COPY --from=builder /d2-src/build/d2 /usr/local/bin/d2
+RUN chmod +x /usr/local/bin/d2
 
 WORKDIR /app
-COPY . .
+COPY package.json package-lock.json ./
 RUN npm install
+
+COPY src/ ./src/
 
 EXPOSE 9090
 CMD ["npm", "start"]

@@ -1,7 +1,7 @@
 {
-  "name": "d2-render-api",
+  "name": "d2-api",
   "version": "1.0.0",
-  "description": "Minimal API to render D2 diagrams via CLI",
+  "description": "D2 render API built from source",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"

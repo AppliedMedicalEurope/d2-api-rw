@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 const fs = require('fs');
+
 const app = express();
 const PORT = process.env.PORT || 9090;
 
@@ -15,11 +16,12 @@ app.post('/render', (req, res) => {
   const outputPath = `/tmp/output.${format}`;
   fs.writeFileSync(inputPath, src);
 
-  exec(`d2 ${inputPath} ${outputPath}`, (error, stdout, stderr) => {
+  exec(`d2 ${inputPath} ${outputPath}`, (error) => {
     if (error) {
-      console.error(stderr);
+      console.error('D2 render error:', error);
       return res.status(500).send('Render failed');
     }
+
     const mime = format === 'svg' ? 'image/svg+xml' : 'image/png';
     res.setHeader('Content-Type', mime);
     fs.createReadStream(outputPath).pipe(res);
@@ -27,5 +29,5 @@ app.post('/render', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`D2 Render API listening on port ${PORT}`);
+  console.log(`D2 Render API running on port ${PORT}`);
 });
