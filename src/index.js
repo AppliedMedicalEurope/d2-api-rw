@@ -9,14 +9,18 @@ const PORT = process.env.PORT || 9090;
 app.use(bodyParser.json());
 
 app.post('/render', (req, res) => {
-  const { src, format = 'svg' } = req.body;
+  const { src, format = 'svg', theme } = req.body;
   if (!src) return res.status(400).send('Missing "src" field');
 
   const inputPath = '/tmp/input.d2';
   const outputPath = `/tmp/output.${format}`;
   fs.writeFileSync(inputPath, src);
 
-  exec(`d2 ${inputPath} ${outputPath}`, (error) => {
+  // Apply --theme if provided
+  const themeArg = theme ? `--theme=${theme}` : '';
+  const cmd = `d2 ${themeArg} ${inputPath} ${outputPath}`;
+
+  exec(cmd, (error) => {
     if (error) {
       console.error('D2 render error:', error);
       return res.status(500).send('Render failed');
